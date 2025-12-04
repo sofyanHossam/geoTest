@@ -13,6 +13,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -28,9 +29,11 @@ import org.json.JSONObject
 import java.net.URL
 import androidx.core.graphics.scale
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var btn: FloatingActionButton
     private val markersMap = mutableMapOf<String, Marker>()
     private val circlesMap = mutableMapOf<String, Circle>()
     private var mMap: GoogleMap? = null
@@ -41,40 +44,40 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val TAG = "MainActivity"
-        private const val GEOFENCE_RADIUS = 50f
+        private const val GEOFENCE_RADIUS = 10f
         private const val FINE_LOCATION_ACCESS_REQUEST_CODE = 10001
         private const val BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002
     }
 
     // 27 نقاط على خط مستقيم تقريبا
     val points: List<LatLng> = listOf(
-        LatLng(30.0444, 31.2357), // Tahrir Square
-        LatLng(30.0450, 31.2370),
-        LatLng(30.0458, 31.2380),
-        LatLng(30.0465, 31.2390),
-        LatLng(30.0470, 31.2400),
-        LatLng(30.0475, 31.2410),
-        LatLng(30.0480, 31.2420),
-        LatLng(30.0485, 31.2430),
-        LatLng(30.0490, 31.2440),
-        LatLng(30.0495, 31.2450),
-        LatLng(30.0500, 31.2460),
-        LatLng(30.0505, 31.2470),
-        LatLng(30.0510, 31.2480),
-        LatLng(30.0515, 31.2490),
-        LatLng(30.0520, 31.2500),
-        LatLng(30.0525, 31.2510),
-        LatLng(30.0530, 31.2520),
-        LatLng(30.0535, 31.2530),
-        LatLng(30.0540, 31.2540),
-        LatLng(30.0545, 31.2550),
-        LatLng(30.0550, 31.2560),
-        LatLng(30.0555, 31.2570),
-        LatLng(30.0560, 31.2580),
-        LatLng(30.0565, 31.2590),
-        LatLng(30.0570, 31.2600),
-        LatLng(30.0575, 31.2610),
-        LatLng(30.0580, 31.2620)
+        LatLng(29.066848597159858, 31.098161616413687), // Tahrir Square
+        LatLng(29.066201404626188, 31.098449333059524),
+        LatLng(29.065369293953434, 31.09615606212457),
+        LatLng(29.064670315793272, 31.092766929150166),
+        LatLng(29.063804907693108, 31.089631663787507),
+        LatLng(29.061556292028982, 31.092001094990156),
+        LatLng(29.059266943784177, 31.09436206401036),
+        LatLng(29.060010340297357, 31.09708267883072),
+        LatLng(29.06123452886125, 31.099650973141397),
+        LatLng(29.06288031836529, 31.103107804148625),
+        LatLng(29.065114111993502, 31.106293843055592),
+        LatLng(29.06818734826611, 31.11091846516768),
+        LatLng(29.069522383863273, 31.11268707640256),
+        LatLng(29.072528924238295, 31.114679937362336),
+        LatLng(29.07389348743074, 31.11549231381209),
+        LatLng(29.0730466468343, 31.11230627504449),
+        LatLng(29.071822598541896, 31.108447486948062),
+        LatLng(29.071445396432132, 31.105092202961952),
+        LatLng(29.070946156235387, 31.099955614403314),
+        LatLng(29.070772346118236, 31.098656658268542),
+        LatLng(29.070480296046885, 31.09870619153342),
+        LatLng(29.069327228409918, 31.099114856204928),
+        LatLng(29.069137596998864, 31.09849769849689),
+        LatLng(29.068595610600077, 31.098625571008224),
+        LatLng(29.06848392307514, 31.098409652291263),
+        LatLng(29.06834093885015, 31.09767549116876),
+        LatLng(29.06815456204961, 31.097600389315613)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +86,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        btn = findViewById(R.id.fab_my_location)
 
         geofencingClient = LocationServices.getGeofencingClient(this)
         geofenceHelper = GeofenceHelper(this)
@@ -133,6 +138,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
         val startPoint = points.first()
         mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 16f))
+        btn.setOnClickListener {
+            mMap?.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    currentLocationMarker?.position ?: startPoint, 18f
+                )
+            )
+        }
         enableUserLocation()
         addAllPoints()
         drawRoutePolyline()
@@ -238,7 +250,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 .getString("points")
 
             val decoded = decodePoly(points)
-            PolylineOptions().addAll(decoded).color(Color.BLUE).width(6f)
+            PolylineOptions().addAll(decoded).color(Color.BLUE).width(16f)
         } catch (e: Exception) {
             Log.e(TAG, "Polyline fetch error: ${e.message}")
             null
