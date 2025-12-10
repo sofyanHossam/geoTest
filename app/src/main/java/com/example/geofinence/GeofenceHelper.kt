@@ -17,7 +17,8 @@ class GeofenceHelper(base: Context) : ContextWrapper(base) {
     fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
         return GeofencingRequest.Builder()
             .addGeofence(geofence!!)
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or
+                    GeofencingRequest.INITIAL_TRIGGER_DWELL)
             .build()
     }
 
